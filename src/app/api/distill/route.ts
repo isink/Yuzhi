@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { callAI, extractJSON } from '@/lib/api-client'
+import { callAI, extractJSON, detectAIError } from '@/lib/api-client'
 import { buildDistillationPrompt } from '@/lib/prompts'
 import { ApiConfig, DistillationResult, PROVIDER_MODELS } from '@/types'
 
@@ -31,6 +31,10 @@ export async function POST(request: NextRequest) {
     const prompt = buildDistillationPrompt(content, personName, domain)
 
     const rawResult = await callAI(apiConfig, model, prompt, 6000)
+
+    const aiError = detectAIError(rawResult)
+    if (aiError) return Response.json({ error: aiError }, { status: 502 })
+
     const jsonStr = extractJSON(rawResult)
     const distillation: DistillationResult = JSON.parse(jsonStr)
 

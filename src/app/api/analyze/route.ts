@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { callAI, extractJSON } from '@/lib/api-client'
+import { callAI, extractJSON, detectAIError } from '@/lib/api-client'
 import { buildAnalysisPrompt } from '@/lib/prompts'
 import { ApiConfig, MaterialAnalysis, PROVIDER_MODELS } from '@/types'
 
@@ -18,9 +18,13 @@ export async function POST(request: NextRequest) {
     }
 
     const model = PROVIDER_MODELS[apiConfig.provider].analysis
-    const prompt = buildAnalysisPrompt(content.slice(0, 12000)) // limit for analysis
+    const prompt = buildAnalysisPrompt(content.slice(0, 12000))
 
     const rawResult = await callAI(apiConfig, model, prompt, 2048)
+
+    const aiError = detectAIError(rawResult)
+    if (aiError) return Response.json({ error: aiError }, { status: 502 })
+
     const jsonStr = extractJSON(rawResult)
     const analysis: MaterialAnalysis = JSON.parse(jsonStr)
 

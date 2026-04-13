@@ -126,6 +126,25 @@ export async function callAI(
   return callOpenAICompatible(config, model, messages, maxTokens)
 }
 
+/** Detect common non-JSON error responses from AI providers and return a
+ *  human-readable Chinese message, or null if the text looks like real JSON. */
+export function detectAIError(text: string): string | null {
+  const t = text.trim()
+  if (t.startsWith('{') || t.startsWith('[')) return null // looks like JSON, let caller parse
+  // Map common AI provider error strings to friendly messages
+  if (/quota|rate.?limit|insufficient.?balance|余额不足|账户欠费/i.test(t))
+    return 'API 余额不足或触发限流，请检查账户余额后重试'
+  if (/content.?policy|content.?filter|sensitive|违规|审核/i.test(t))
+    return '素材内容触发了 AI 内容审核，请精简或调整素材后重试'
+  if (/invalid.?api.?key|authentication|api key/i.test(t))
+    return 'API Key 无效，请检查后重新填写'
+  if (/timeout|timed.?out|超时/i.test(t))
+    return '请求超时，素材过长或网络不稳定，请缩短素材或稍后重试'
+  if (/error/i.test(t))
+    return `AI 返回了错误响应，请稍后重试（${t.slice(0, 60)}）`
+  return `AI 未返回有效内容，请重试（${t.slice(0, 60)}）`
+}
+
 export function extractJSON(text: string): string {
   // Step 1: extract candidate from markdown code block or raw object
   let candidate = text
