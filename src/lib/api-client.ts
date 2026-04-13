@@ -130,7 +130,8 @@ export async function callAI(
  *  human-readable Chinese message, or null if the text looks like real JSON. */
 export function detectAIError(text: string): string | null {
   const t = text.trim()
-  if (t.startsWith('{') || t.startsWith('[')) return null // looks like JSON, let caller parse
+  // Valid JSON object/array, or markdown code block wrapping JSON — let caller parse
+  if (t.startsWith('{') || t.startsWith('[') || t.startsWith('```')) return null
   // Map common AI provider error strings to friendly messages
   if (/quota|rate.?limit|insufficient.?balance|余额不足|账户欠费/i.test(t))
     return 'API 余额不足或触发限流，请检查账户余额后重试'
