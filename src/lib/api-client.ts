@@ -126,13 +126,45 @@ export async function callAI(
 }
 
 export function extractJSON(text: string): string {
-  // Try to find JSON in the response (handle markdown code blocks)
-  const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
-  if (jsonMatch) return jsonMatch[1]
+  // Step 1: extract candidate from markdown code block or raw object
+  let candidate = text
+  const codeBlock = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
+  if (codeBlock) {
+    candidate = codeBlock[1]
+  } else {
+    const objectMatch = text.match(/\{[\s\S]*\}/)
+    if (objectMatch) candidate = objectMatch[0]
+  }
 
-  // Try to find raw JSON object
-  const objectMatch = text.match(/\{[\s\S]*\}/)
-  if (objectMatch) return objectMatch[0]
+  // Step 2: fast path — valid as-is
+  try {
+    JSON.parse(candidate)
+    return candidate
+  } catch {
+    // fall through to sanitization
+  }
 
-  return text
+  // Step 3: replace Chinese / fullwidth quote characters with ASCII equivalents
+  let sanitized = candidate
+    .replace(/[\u201c\u201d\u300c\u300d\uff02]/g, '"')
+    .replace(/[\u2018\u2019\u300e\u300f\uff07]/g, "'")
+
+  try {
+    JSON.parse(sanitized)
+    return sanitized
+  } catch {
+    // fall through
+  }
+
+  // Step 4: strip trailing commas before } or ] (common LLM mistake)
+  const noTrailingCommas = sanitized.replace(/,(\s*[}\]])/g, '$1')
+  try {
+    JSON.parse(noTrailingCommas)
+    return noTrailingCommas
+  } catch {
+    // fall through
+  }
+
+  // Step 5: return best candidate and let callers surface the parse error
+  return sanitized
 }
