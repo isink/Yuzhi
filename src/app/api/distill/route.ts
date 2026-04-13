@@ -3,6 +3,10 @@ import { callAI, extractJSON } from '@/lib/api-client'
 import { buildDistillationPrompt } from '@/lib/prompts'
 import { ApiConfig, DistillationResult, PROVIDER_MODELS } from '@/types'
 
+// Distillation (especially with deepseek-reasoner) can take 60-120s.
+// Vercel Hobby: 60s max. Vercel Pro: 300s max.
+export const maxDuration = 60
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()

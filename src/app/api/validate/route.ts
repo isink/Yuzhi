@@ -3,6 +3,8 @@ import { callAI, extractJSON } from '@/lib/api-client'
 import { buildValidationPrompt } from '@/lib/prompts'
 import { ApiConfig, PROVIDER_MODELS } from '@/types'
 
+export const maxDuration = 60
+
 interface ValidationResult {
   scores: {
     consistency: number

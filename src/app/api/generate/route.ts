@@ -3,6 +3,8 @@ import { callAI } from '@/lib/api-client'
 import { buildSkillGenerationPrompt } from '@/lib/prompts'
 import { ApiConfig, DistillationResult, PROVIDER_MODELS } from '@/types'
 
+export const maxDuration = 60
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()

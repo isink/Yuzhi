@@ -3,6 +3,8 @@ import { callAI, extractJSON } from '@/lib/api-client'
 import { buildAnalysisPrompt } from '@/lib/prompts'
 import { ApiConfig, MaterialAnalysis, PROVIDER_MODELS } from '@/types'
 
+export const maxDuration = 60
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
