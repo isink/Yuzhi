@@ -1,3 +1,4 @@
+import { jsonrepair } from 'jsonrepair'
 import { ApiConfig, ApiProvider } from '@/types'
 
 interface ChatMessage {
@@ -141,30 +142,27 @@ export function extractJSON(text: string): string {
     JSON.parse(candidate)
     return candidate
   } catch {
-    // fall through to sanitization
+    // fall through to repair
   }
 
-  // Step 3: replace Chinese / fullwidth quote characters with ASCII equivalents
-  let sanitized = candidate
-    .replace(/[\u201c\u201d\u300c\u300d\uff02]/g, '"')
-    .replace(/[\u2018\u2019\u300e\u300f\uff07]/g, "'")
-
+  // Step 3: jsonrepair handles unescaped quotes, trailing commas,
+  //         missing quotes, and most other LLM JSON quirks
   try {
-    JSON.parse(sanitized)
-    return sanitized
+    return jsonrepair(candidate)
   } catch {
     // fall through
   }
 
-  // Step 4: strip trailing commas before } or ] (common LLM mistake)
-  const noTrailingCommas = sanitized.replace(/,(\s*[}\]])/g, '$1')
+  // Step 4: last resort — replace Chinese/fullwidth quotes then repair
   try {
-    JSON.parse(noTrailingCommas)
-    return noTrailingCommas
+    const withAsciiQuotes = candidate
+      .replace(/[\u201c\u201d\u300c\u300d\uff02]/g, '"')
+      .replace(/[\u2018\u2019\u300e\u300f\uff07]/g, "'")
+    return jsonrepair(withAsciiQuotes)
   } catch {
     // fall through
   }
 
-  // Step 5: return best candidate and let callers surface the parse error
-  return sanitized
+  // Step 5: return best candidate and let callers surface the error
+  return candidate
 }
