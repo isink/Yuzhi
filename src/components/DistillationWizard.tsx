@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import { ApiConfig, ApiProvider, DistillationState, DOMAINS, PROVIDER_LABELS, PROVIDER_MODELS } from '@/types'
+import { ApiConfig, ApiProvider, DistillationResult, DistillationState, DOMAINS, PROVIDER_LABELS, PROVIDER_MODELS } from '@/types'
 import StepIndicator from './StepIndicator'
 import LoadingDots from './LoadingDots'
 import AnalysisResult from './AnalysisResult'
@@ -113,9 +113,14 @@ export default function DistillationWizard() {
           apiConfig: state.apiConfig,
         }),
       })
-      const data = await res.json()
+      let data: { error?: string; distillation?: DistillationResult }
+      try {
+        data = await res.json()
+      } catch {
+        throw new Error('请求超时或网络异常。素材较多时建议精简到 1 万字以内，或稍后重试。')
+      }
       if (!res.ok) throw new Error(data.error)
-      update({ distillation: data.distillation, step: 'distilled' })
+      update({ distillation: data.distillation ?? null, step: 'distilled' })
       // Auto-proceed to generation
       await runGeneration(data.distillation)
     } catch (err) {

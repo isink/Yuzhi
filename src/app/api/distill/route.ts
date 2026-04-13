@@ -27,8 +27,14 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: '请提供 API Key' }, { status: 400 })
     }
 
+    // Cap content at 15 000 chars to stay within the 60s Vercel Hobby timeout.
+    // Roughly 10 000 Chinese characters — more than enough for high-quality distillation.
+    const cappedContent = content.length > 15000
+      ? content.slice(0, 15000) + '\n\n[...素材已截取前 15000 字用于蒸馏]'
+      : content
+
     const model = PROVIDER_MODELS[apiConfig.provider].distill
-    const prompt = buildDistillationPrompt(content, personName, domain)
+    const prompt = buildDistillationPrompt(cappedContent, personName, domain)
 
     const rawResult = await callAI(apiConfig, model, prompt, 6000)
 
