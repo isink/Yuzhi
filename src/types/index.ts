@@ -96,7 +96,7 @@ export const PROVIDER_LABELS: Record<ApiProvider, string> = {
 export const PROVIDER_MODELS: Record<ApiProvider, { analysis: string; distill: string; generate: string }> = {
   deepseek: {
     analysis: 'deepseek-chat',
-    distill: 'deepseek-reasoner',
+    distill: 'deepseek-chat',
     generate: 'deepseek-chat',
   },
   claude: {
