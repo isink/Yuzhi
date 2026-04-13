@@ -148,24 +148,15 @@ export default function DistillationWizard() {
           domain: data.domain,
           date: data.date,
           materialCount: data.materialCount,
+          uploaderName: state.uploaderName,
+          distillation: distillation!,
+          rawMaterial: state.rawMaterial,
         },
         step: 'done',
       })
     } catch (err) {
       update({ error: err instanceof Error ? err.message : 'Skill 文件生成失败', step: 'distilled' })
     }
-  }
-
-  // ── Download ──────────────────────────────────────────────────────────────
-  function handleDownload() {
-    if (!state.skillPackage) return
-    const blob = new Blob([state.skillPackage.skillMd], { type: 'text/markdown' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${state.personName.replace(/\s+/g, '_')}.skill.md`
-    a.click()
-    URL.revokeObjectURL(url)
   }
 
   function handleRestart() {
@@ -450,7 +441,6 @@ export default function DistillationWizard() {
           <h2 className="text-xl font-bold text-gray-900">蒸馏完成</h2>
           <SkillPreview
             skillPackage={state.skillPackage}
-            onDownload={handleDownload}
             onRestart={handleRestart}
           />
         </div>

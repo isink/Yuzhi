@@ -67,6 +67,9 @@ export interface SkillPackage {
   domain: string
   date: string
   materialCount: number
+  uploaderName: string
+  distillation: DistillationResult
+  rawMaterial: string
 }
 
 export interface DistillationState {
@@ -97,9 +100,9 @@ export const PROVIDER_MODELS: Record<ApiProvider, { analysis: string; distill: s
     generate: 'deepseek-chat',
   },
   claude: {
-    analysis: 'claude-opus-4-5',
-    distill: 'claude-opus-4-5',
-    generate: 'claude-sonnet-4-5',
+    analysis: 'claude-opus-4-6',
+    distill: 'claude-opus-4-6',
+    generate: 'claude-sonnet-4-6',
   },
   openai: {
     analysis: 'gpt-4o-mini',
