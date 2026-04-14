@@ -18,12 +18,14 @@ export default function DistillPage() {
             <span className="text-gray-300">/</span>
             <span className="text-sm text-gray-600">蒸馏工具</span>
           </Link>
-          <Link
-            href="/"
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            ← 返回首页
-          </Link>
+          <div className="flex items-center gap-4 text-sm">
+            <Link href="/skills" className="text-gray-500 hover:text-gray-700 transition-colors">
+              Skill 广场
+            </Link>
+            <Link href="/" className="text-gray-500 hover:text-gray-700 transition-colors">
+              ← 首页
+            </Link>
+          </div>
         </div>
       </header>
 

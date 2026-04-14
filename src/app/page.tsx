@@ -101,6 +101,12 @@ export default function HomePage() {
           </Link>
           <div className="flex items-center gap-4">
             <Link
+              href="/skills"
+              className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              Skill 广场
+            </Link>
+            <Link
               href="/distill"
               className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
             >
